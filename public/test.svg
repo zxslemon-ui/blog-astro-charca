@@ -1,0 +1,47 @@
+<svg width="800" height="400" viewBox="0 0 800 400" xmlns="http://www.w3.org/2000/svg">
+  <style>
+    .main { fill: none; stroke: #2f3e4e; stroke-width: 2; }
+    .text-title { font-family: "Times New Roman", serif; font-size: 48px; fill: #2f3e4e; }
+    .text-slogan { font-family: "Times New Roman", serif; font-size: 20px; fill: #6b6b6b; font-style: italic; }
+    .star { fill: #2f3e4e; }
+  </style>
+
+  <!-- 弧形边框 -->
+  <path d="M100,200 A300,180 0 0,1 700,200" class="main"/>
+  <path d="M100,220 A300,180 0 0,0 700,220" class="main"/>
+
+  <!-- ff 字母（简化书法） -->
+  <path d="M350 140 
+           C340 80, 400 80, 380 140 
+           C360 200, 420 200, 400 140" 
+        stroke="#2f3e4e" stroke-width="4" fill="none"/>
+
+  <path d="M400 140 
+           C390 80, 450 80, 430 140 
+           C410 200, 470 200, 450 140" 
+        stroke="#2f3e4e" stroke-width="4" fill="none"/>
+
+  <!-- 星星 -->
+  <circle cx="520" cy="120" r="3" class="star"/>
+  <circle cx="540" cy="140" r="2" class="star"/>
+  <circle cx="500" cy="150" r="2" class="star"/>
+
+  <!-- 羽毛（简化） -->
+  <path d="M550 160 Q580 120 600 180 Q570 170 550 160 Z" 
+        stroke="#2f3e4e" fill="none"/>
+
+  <!-- 标题 -->
+  <text x="400" y="260" text-anchor="middle" class="text-title">
+    Forever's Blog
+  </text>
+
+  <!-- 分隔线 -->
+  <line x1="250" y1="290" x2="350" y2="290" stroke="#aaa"/>
+  <circle cx="400" cy="290" r="3" fill="#aaa"/>
+  <line x1="450" y1="290" x2="550" y2="290" stroke="#aaa"/>
+
+  <!-- 标语 -->
+  <text x="400" y="330" text-anchor="middle" class="text-slogan">
+    From the start, unto forever.
+  </text>
+</svg>
