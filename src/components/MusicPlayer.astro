@@ -1,0 +1,137 @@
+---
+// MusicPlayer.astro - Simple music player using Tone.js
+// Usage: <MusicPlayer notes="C4,D4,E4,F4,G4" />
+
+interface Props {
+  notes: string;
+  title?: string;
+  class?: string;
+}
+
+const { notes, title, class: className } = Astro.props;
+---
+
+<div class={`music-player-container ${className || ''}`}>
+  {title && <h4 class="music-player-title">{title}</h4>}
+  <div class="music-player-controls">
+    <button id={`play-${notes.replace(/[^a-zA-Z0-9]/g, '')}`} class="play-button">
+      ▶️ 播放
+    </button>
+    <button id={`stop-${notes.replace(/[^a-zA-Z0-9]/g, '')}`} class="stop-button">
+      ⏹️ 停止
+    </button>
+  </div>
+  <div class="music-player-info">
+    <small>音符序列: {notes}</small>
+  </div>
+</div>
+
+<script define:vars={{ notes }}>
+  // Dynamic import to avoid SSR issues
+  import('tone').then(async (Tone) => {
+    const { Synth, Sequence } = Tone;
+
+    const buttonId = notes.replace(/[^a-zA-Z0-9]/g, '');
+    const playButton = document.getElementById(`play-${buttonId}`);
+    const stopButton = document.getElementById(`stop-${buttonId}`);
+
+    if (!playButton || !stopButton) return;
+
+    // Create a simple synth
+    const synth = new Synth().toDestination();
+
+    // Parse notes string into array
+    const noteArray = notes.split(',').map(note => note.trim());
+
+    // Create a sequence
+    const sequence = new Sequence((time, note) => {
+      synth.triggerAttackRelease(note, "8n", time);
+    }, noteArray, "4n");
+
+    // Event listeners
+    playButton.addEventListener('click', async () => {
+      await Tone.start();
+      sequence.start();
+      Tone.Transport.start();
+      playButton.disabled = true;
+      stopButton.disabled = false;
+    });
+
+    stopButton.addEventListener('click', () => {
+      sequence.stop();
+      Tone.Transport.stop();
+      playButton.disabled = false;
+      stopButton.disabled = true;
+    });
+
+    // Initially disable stop button
+    stopButton.disabled = true;
+  });
+</script>
+
+<style>
+  .music-player-container {
+    margin: 1.5em 0;
+    padding: 1em;
+    border-radius: 8px;
+    background: rgba(84, 142, 155, 0.05);
+    border: 1px solid rgba(84, 142, 155, 0.2);
+  }
+
+  .music-player-title {
+    margin: 0 0 1em 0;
+    font-size: 1.2em;
+    color: var(--primary-color);
+  }
+
+  .music-player-controls {
+    display: flex;
+    gap: 1em;
+    margin-bottom: 0.5em;
+  }
+
+  .play-button, .stop-button {
+    padding: 0.5em 1em;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.9em;
+    transition: background-color 0.2s;
+  }
+
+  .play-button {
+    background-color: var(--primary-color);
+    color: white;
+  }
+
+  .play-button:hover:not(:disabled) {
+    background-color: #4a7a85;
+  }
+
+  .stop-button {
+    background-color: #dc3545;
+    color: white;
+  }
+
+  .stop-button:hover:not(:disabled) {
+    background-color: #c82333;
+  }
+
+  .play-button:disabled, .stop-button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+
+  .music-player-info {
+    color: var(--text-secondary);
+  }
+
+  .music-player-info small {
+    font-family: var(--font-family-sans);
+  }
+
+  :root.theme-dark .music-player-container {
+    background: rgba(255, 255, 255, 0.05);
+    border-color: rgba(255, 255, 255, 0.1);
+  }
+</style>

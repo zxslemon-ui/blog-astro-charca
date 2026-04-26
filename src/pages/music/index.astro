@@ -1,0 +1,158 @@
+---
+import { getCollection } from 'astro:content'
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import MusicScore from '../../components/MusicScore.astro';
+import MusicPlayer from '../../components/MusicPlayer.astro';
+
+const title = 'Music';
+const description = 'Sheet Music.';
+const permalink = `${Astro.site.href}music`;
+---
+
+<BaseLayout title={title} description={description} permalink={permalink} current="Music">
+  <div class="container">
+    <h1>Music</h1>
+
+    <section class="intro">
+      <h2>🎵 乐谱展示功能</h2>
+      <p>
+        我们的博客现在支持在网站中直接展示和阅读音乐乐谱！使用 OpenSheetMusicDisplay (OSMD) 库，
+        完全支持 MusicXML 格式，兼容所有主流音乐软件导出的乐谱。
+      </p>
+    </section>
+
+    <section class="demo">
+      <h2>乐谱示例</h2>
+      <p>下面是一个简单的C大调音阶：</p>
+      <MusicScore scoreId="example-scale" title="C Major Scale (C大调音阶)" />
+    </section>
+
+    <section class="examples">
+      <h2>更多示例</h2>
+
+      <h3>🎼 经典儿歌乐谱</h3>
+      <p>《小星星》是一首经典的儿童歌曲：</p>
+      <MusicScore scoreId="twinkle-twinkle" title="Twinkle Twinkle Little Star (小星星)" />
+
+      <h3>🎵 音频播放示例</h3>
+      <p>使用 Tone.js 播放简单的旋律：</p>
+      <MusicPlayer notes="C4,C4,G4,G4,A4,A4,G4" title="小星星旋律" />
+      <MusicPlayer notes="C4,D4,E4,F4,G4,A4,B4,C5" title="C大调音阶" />
+      <MusicPlayer notes="E4,D4,C4,D4,E4,E4,E4,D4,D4,D4,E4,G4,G4,E4,D4,C4" title="简单旋律" />
+    </section>
+
+    <section class="usage">
+      <h2>如何使用</h2>
+      <p>在博客文章中添加乐谱非常简单：</p>
+      <pre><code>&lt;MusicScore scoreId="your-score-id" title="Your Score Title" /&gt;</code></pre>
+      <p>所有乐谱文件放在 <code>/public/scores/</code> 文件夹中，扩展名为 <code>.musicxml</code></p>
+    </section>
+
+    <section class="tech">
+      <h2>技术栈</h2>
+      <p>本功能使用完全开源且无侵权问题的库：</p>
+      <ul>
+        <li><strong>OpenSheetMusicDisplay (OSMD)</strong> - BSD-3 许可证</li>
+        <li><strong>Tone.js</strong> - MIT 许可证</li>
+      </ul>
+    </section>
+
+  </div>
+</BaseLayout>
+
+<style>
+  .container {
+    max-width: 60em;
+    margin: 0 auto;
+  }
+
+  h1 {
+    text-align: center;
+    margin-bottom: 2em;
+  }
+
+  section {
+    margin: 3em 0;
+    padding: 2em;
+    background: rgba(84, 142, 155, 0.05);
+    border-left: 4px solid var(--primary-color);
+    border-radius: 4px;
+  }
+
+  section h2 {
+    color: var(--primary-color);
+    margin-top: 0;
+  }
+
+  .intro p {
+    font-size: 1.1em;
+    line-height: 1.6;
+  }
+
+  .demo {
+    background: rgba(84, 142, 155, 0.08);
+  }
+
+  .examples {
+    background: rgba(155, 84, 142, 0.05);
+    border-left-color: #9b548e;
+  }
+
+  .examples h3 {
+    color: #9b548e;
+    margin-top: 2em;
+    margin-bottom: 0.5em;
+  }
+
+  .examples h3:first-child {
+    margin-top: 0;
+  }
+
+  .usage pre {
+    background: var(--background-body);
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    padding: 1em;
+    border-radius: 4px;
+    overflow-x: auto;
+  }
+
+  .usage code {
+    font-family: 'SF Mono', monospace;
+    font-size: 0.9em;
+  }
+
+  .tech ul {
+    list-style: none;
+    padding-left: 0;
+  }
+
+  .tech li {
+    padding-left: 2em;
+    position: relative;
+    margin: 0.5em 0;
+  }
+
+  .tech li::before {
+    content: "♪";
+    position: absolute;
+    left: 0;
+    color: var(--primary-color);
+  }
+
+  :root.theme-dark section {
+    background: rgba(255, 255, 255, 0.05);
+  }
+
+  :root.theme-dark .demo {
+    background: rgba(255, 255, 255, 0.08);
+  }
+
+  :root.theme-dark .examples {
+    background: rgba(255, 255, 255, 0.05);
+  }
+
+  :root.theme-dark .usage pre {
+    background: rgba(0, 0, 0, 0.3);
+    border-color: rgba(255, 255, 255, 0.1);
+  }
+</style>

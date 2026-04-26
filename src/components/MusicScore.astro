@@ -1,0 +1,147 @@
+---
+// MusicScore.astro - Display MusicXML scores in blog posts
+// Usage: <MusicScore scoreId="example-score" title="Score Title" />
+
+interface Props {
+  scoreId: string;
+  title?: string;
+  class?: string;
+}
+
+const { scoreId, title, class: className } = Astro.props;
+---
+
+<div class={`music-score-container ${className || ''}`}>
+  {title && <h3 class="music-score-title">{title}</h3>}
+  <div id={`score-${scoreId}`} class="music-score-display"></div>
+</div>
+
+<script define:vars={{ scoreId }}>
+  // Dynamic import to avoid SSR issues
+  import('opensheetmusicdisplay').then(async (osmd) => {
+    console.log('OpenSheetMusicDisplay module loaded:', osmd);
+
+    // Try different ways to access the constructor
+    let OpenSheetMusicDisplay;
+    if (typeof osmd === 'function') {
+      OpenSheetMusicDisplay = osmd;
+    } else if (osmd.default) {
+      OpenSheetMusicDisplay = osmd.default;
+    } else if (osmd.OpenSheetMusicDisplay) {
+      OpenSheetMusicDisplay = osmd.OpenSheetMusicDisplay;
+    } else {
+      console.error('Cannot find OpenSheetMusicDisplay constructor in module:', Object.keys(osmd));
+      const scoreElement = document.getElementById(`score-${scoreId}`);
+      if (scoreElement) {
+        scoreElement.innerHTML = '<p class="error">Cannot find OpenSheetMusicDisplay constructor</p>';
+      }
+      return;
+    }
+
+    console.log('Using OpenSheetMusicDisplay constructor:', OpenSheetMusicDisplay);
+
+    // Get the score element
+    const scoreElement = document.getElementById(`score-${scoreId}`);
+    if (!scoreElement) {
+      console.error(`Score element not found: score-${scoreId}`);
+      return;
+    }
+
+    // Show loading message
+    scoreElement.innerHTML = '<p class="loading">Loading music score...</p>';
+
+    try {
+      // Initialize OSMD
+      const osmdInstance = new OpenSheetMusicDisplay(scoreElement, {
+        autoResize: true,
+        backend: 'svg',
+        drawingParameters: 'default'
+      });
+
+      console.log(`OSMD initialized for ${scoreId}`);
+
+      // Fetch score data
+      const scoreUrl = `/scores/${scoreId}.musicxml`;
+      console.log(`Fetching score from: ${scoreUrl}`);
+
+      const response = await fetch(scoreUrl);
+      if (!response.ok) {
+        const errorMsg = `Error loading score: ${scoreId} (${response.status})`;
+        console.error(errorMsg);
+        scoreElement.innerHTML = `<p class="error">${errorMsg}</p>`;
+        return;
+      }
+
+      const scoreData = await response.text();
+      console.log(`Score data loaded, length: ${scoreData.length}`);
+
+      // Load and render the score
+      await osmdInstance.load(scoreData);
+      console.log(`Score loaded, rendering...`);
+
+      osmdInstance.render();
+      console.log(`Score rendered successfully for ${scoreId}`);
+
+    } catch (error) {
+      console.error('Error rendering score:', error);
+      scoreElement.innerHTML = `<p class="error">Error rendering music score: ${error.message}</p>`;
+    }
+  }).catch(error => {
+    console.error('Error importing OpenSheetMusicDisplay:', error);
+    const scoreElement = document.getElementById(`score-${scoreId}`);
+    if (scoreElement) {
+      scoreElement.innerHTML = '<p class="error">Failed to load music rendering library</p>';
+    }
+  });
+</script>
+
+<style>
+  .music-score-container {
+    margin: 2em 0;
+    padding: 1.5em;
+    border-radius: 8px;
+    background-color: var(--background-body);
+    border: 1px solid rgba(0, 0, 0, 0.1);
+  }
+
+  .music-score-title {
+    margin-top: 0;
+    margin-bottom: 1.2em;
+    font-size: 1.5em;
+    color: var(--text-main);
+    border-bottom: 2px solid var(--primary-color);
+    padding-bottom: 0.5em;
+  }
+
+  .music-score-display {
+    width: 100%;
+    min-height: 400px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .music-score-display :global(svg) {
+    max-width: 100%;
+    height: auto;
+  }
+
+  .error {
+    color: #d32f2f;
+    font-family: var(--font-family-sans);
+    text-align: center;
+    padding: 2em;
+  }
+
+  .loading {
+    color: var(--text-secondary);
+    font-family: var(--font-family-sans);
+    text-align: center;
+    padding: 2em;
+  }
+
+  :root.theme-dark .music-score-container {
+    background-color: rgba(255, 255, 255, 0.05);
+    border-color: rgba(255, 255, 255, 0.1);
+  }
+</style>

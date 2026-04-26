@@ -2,6 +2,26 @@
   <span>
     &copy; {new Date().getFullYear()} For Forever. From the start, unto forever.
   </span>
+  <div class="social-links">
+		<a href="https://github.com/zxslemon-ui/blog-astro-charca" target="_blank">
+      <span class="sr-only">Follow on GitHub</span>
+      <svg viewBox="0 0 16 16" aria-hidden="true" width="32" height="32">
+        <path fill="currentColor" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.012 8.012 0 0 0 16 8c0-4.42-3.58-8-8-8z"></path>
+      </svg>
+    </a>
+    <a href="https://space.bilibili.com/356357113" target="_blank">
+      <span class="sr-only">Follow on Bilibili</span>
+      <svg viewBox="0 0 16 16" aria-hidden="true" width="32" height="32">
+        <path fill="currentColor" d="M11.875 3.102h-.569l1.042-1.271a.417.417 0 0 0-.649-.532L10.388 2.9H5.612L4.301 1.299a.417.417 0 0 0-.649.532l1.042 1.271h-.569c-1.362 0-2.458 1.093-2.458 2.432v4.68c0 1.338 1.094 2.431 2.431 2.431h7.804c1.338 0 2.431-1.093 2.431-2.431V5.534c0-1.338-1.094-2.432-2.458-2.432zm.292 7.111a.541.541 0 0 1-.542.542H4.375a.541.541 0 0 1-.542-.542V5.778c0-.298.245-.542.542-.542h7.25c.297 0 .542.244.542.542v4.435zM10.917 7.11c0 .507-.41.917-.917.917s-.917-.41-.917-.917.41-.917.917-.917.917.41.917.917zm-4.167 0c0 .507-.41.917-.917.917s-.917-.41-.917-.917.41-.917.917-.917.917.41.917.917z"></path>
+      </svg>
+    </a>
+    <a href="https://www.douyin.com/user/MS4wLjABAAAAo9mBq1sYs4JnOA86zkzpVsg6d2x6Ao7v_58D3yU1mIo" target="_blank">
+      <span class="sr-only">Follow on Douyin</span>
+      <svg viewBox="0 0 16 16" aria-hidden="true" width="32" height="32">
+        <path fill="currentColor" d="M8.35.016h-2.16v11.129a2.373 2.373 0 1 1-2.373-2.373c.46 0 .888.131 1.375.44V6.618a4.043 4.043 0 0 0-1.419-.262 4.046 4.046 0 0 0 0 8.092 4.046 4.046 0 0 0 4.046-4.046V3.75c.795.575 1.76.923 2.809.97V2.48A3.258 3.258 0 0 1 8.35.047V.016z"></path>
+      </svg>
+    </a>    
+	</div>
 </footer>
 
 <style>
@@ -13,5 +33,35 @@
     padding: 1em 2em;
     text-align: center;
     width: 100%;
+  }
+  a {
+    display: inline-flex; /* 让 A 标签紧贴 SVG 边缘，不给下划线留任何空间 */
+    text-decoration: none !important;
+  }
+
+  .social-links {
+    display: flex;            /* 开启弹性布局 */
+    justify-content: center;  /* 水平居中 */
+    align-items: center;      /* 垂直居中 */
+    gap: 24px;                /* 设置图标之间的间距，你可以根据需要调整 */
+    padding: 20px 0;
+  }
+
+  .social-links a {
+    display: flex;            /* 消除 a 标签作为 inline 元素的底边间隙 */
+    text-decoration: none !important; /* 彻底干掉那条顽固的下划线 */
+    color: inherit;           /* 继承父级颜色 */
+    transition: transform 0.2s ease; /* 增加一点悬停动画 */
+  }
+
+  .social-links a:hover {
+    transform: translateY(-3px); /* 鼠标悬停时微调，增加交互感 */
+    color: #40c9ff;             /* 悬停时变色，可自选 */
+  }
+
+  .social-links svg {
+    display: block;           /* 确保图标内部没有多余的像素偏移 */
+    width: 32px;              /* 统一宽度 */
+    height: 32px;             /* 统一高度 */
   }
 </style>
