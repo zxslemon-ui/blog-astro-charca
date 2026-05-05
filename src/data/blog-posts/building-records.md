@@ -285,9 +285,26 @@ h1 单独调整，减少顶部间距
 - 引入页脚社交媒体链接
 - 引入音乐功能（待完善）
 
+### 2026.5.3
++ 修复乐谱功能 Failed to load music rendering library 报错
+
+> opensheetmusicdisplay v1.9.7 只有一个 UMD 格式的打包文件（build/opensheetmusicdisplay.min.js，1.2MB），没有 ESM 版本。当 Astro/Vite 尝试在客户端用 import('opensheetmusicdisplay') 动态加载时，Vite 无法正确将 UMD 格式转换为浏览器可用的 ESM 模块，导致 import 直接失败，进入 .catch() 抛出 "Failed to load music rendering library"。  
+>
+> 解决方案：两步修改：  
+>
+> 1. 复制 UMD 文件到 js（1.2MB）  
+> + 从 opensheetmusicdisplay.min.js  
+> + 复制到 opensheetmusicdisplay.min.js  
+> 2. 重写 MusicScore.astro 的加载逻辑  
+> + import('opensheetmusicdisplay') ❌（Vite 无法处理 UMD）  
+> + 改用动态创建 <script> 标签加载 /js/opensheetmusicdisplay.min.js  
+> + 通过 window.opensheetmusicdisplay.OpenSheetMusicDisplay 获取构造函数 
+> + 加入了 去重逻辑：同一页面多个乐谱组件共享一个脚本实例，不会重复加载 
+>
+
 ### todo
-- 修复nav导航栏点击blog，同时music下标也显示的错误
-- 添加音乐功能（上传乐谱，方便查看）
-- 在首页添加子页面跳转至各子功能区域
-- 引入多媒体
-- 部署至国内服务器，添加域名
++ 修复nav导航栏点击blog，同时music下标也显示的错误
++ 添加音乐功能（上传乐谱，方便查看）
++ 在首页添加子页面跳转至各子功能区域
++ 引入多媒体
++ 部署至国内服务器，添加域名

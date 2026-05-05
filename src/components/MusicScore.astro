@@ -17,82 +17,82 @@ const { scoreId, title, class: className } = Astro.props;
 </div>
 
 <script define:vars={{ scoreId }}>
-  // Dynamic import to avoid SSR issues
-  import('opensheetmusicdisplay').then(async (osmd) => {
-    console.log('OpenSheetMusicDisplay module loaded:', osmd);
+  // ============================================================
+  // Load OpenSheetMusicDisplay (UMD bundle) via a <script> tag.
+  // The npm package is a UMD bundle that Vite cannot transform
+  // for client-side dynamic import(), so we copy it to /public/js/
+  // and load it as a classic script.
+  // ============================================================
 
-    // Try different ways to access the constructor
-    let OpenSheetMusicDisplay;
-    if (typeof osmd === 'function') {
-      OpenSheetMusicDisplay = osmd;
-    } else if (osmd.default) {
-      OpenSheetMusicDisplay = osmd.default;
-    } else if (osmd.OpenSheetMusicDisplay) {
-      OpenSheetMusicDisplay = osmd.OpenSheetMusicDisplay;
-    } else {
-      console.error('Cannot find OpenSheetMusicDisplay constructor in module:', Object.keys(osmd));
-      const scoreElement = document.getElementById(`score-${scoreId}`);
-      if (scoreElement) {
-        scoreElement.innerHTML = '<p class="error">Cannot find OpenSheetMusicDisplay constructor</p>';
+  const SCORE_ELEMENT_ID = `score-${scoreId}`;
+  const OSMD_SCRIPT_URL = '/js/opensheetmusicdisplay.min.js';
+
+  async function ensureOSMDLoaded() {
+    // Return immediately if already loaded by another component
+    if (window.opensheetmusicdisplay?.OpenSheetMusicDisplay) {
+      return window.opensheetmusicdisplay.OpenSheetMusicDisplay;
+    }
+
+    return new Promise((resolve, reject) => {
+      // Avoid inserting duplicate script tags
+      if (document.querySelector(`script[src="${OSMD_SCRIPT_URL}"]`)) {
+        // Another instance is already loading the script — wait for it
+        const checkInterval = setInterval(() => {
+          if (window.opensheetmusicdisplay?.OpenSheetMusicDisplay) {
+            clearInterval(checkInterval);
+            resolve(window.opensheetmusicdisplay.OpenSheetMusicDisplay);
+          }
+        }, 100);
+        // Timeout after 15s
+        setTimeout(() => {
+          clearInterval(checkInterval);
+          reject(new Error('OpenSheetMusicDisplay script load timed out'));
+        }, 15000);
+        return;
       }
-      return;
-    }
 
-    console.log('Using OpenSheetMusicDisplay constructor:', OpenSheetMusicDisplay);
+      const script = document.createElement('script');
+      script.src = OSMD_SCRIPT_URL;
+      script.onload = () => {
+        if (window.opensheetmusicdisplay?.OpenSheetMusicDisplay) {
+          resolve(window.opensheetmusicdisplay.OpenSheetMusicDisplay);
+        } else {
+          reject(new Error('OpenSheetMusicDisplay script loaded but constructor not found'));
+        }
+      };
+      script.onerror = () => reject(new Error('Failed to load OpenSheetMusicDisplay script'));
+      document.head.appendChild(script);
+    });
+  }
 
-    // Get the score element
-    const scoreElement = document.getElementById(`score-${scoreId}`);
-    if (!scoreElement) {
-      console.error(`Score element not found: score-${scoreId}`);
-      return;
-    }
-
-    // Show loading message
-    scoreElement.innerHTML = '<p class="loading">Loading music score...</p>';
+  (async () => {
+    const scoreElement = document.getElementById(SCORE_ELEMENT_ID);
+    if (!scoreElement) return;
 
     try {
-      // Initialize OSMD
+      const OpenSheetMusicDisplay = await ensureOSMDLoaded();
+      scoreElement.innerHTML = '<p class="loading">Loading music score...</p>';
+
       const osmdInstance = new OpenSheetMusicDisplay(scoreElement, {
         autoResize: true,
         backend: 'svg',
-        drawingParameters: 'default'
+        drawingParameters: 'default',
       });
 
-      console.log(`OSMD initialized for ${scoreId}`);
-
-      // Fetch score data
-      const scoreUrl = `/scores/${scoreId}.musicxml`;
-      console.log(`Fetching score from: ${scoreUrl}`);
-
-      const response = await fetch(scoreUrl);
+      const response = await fetch(`/scores/${scoreId}.musicxml`);
       if (!response.ok) {
-        const errorMsg = `Error loading score: ${scoreId} (${response.status})`;
-        console.error(errorMsg);
-        scoreElement.innerHTML = `<p class="error">${errorMsg}</p>`;
+        scoreElement.innerHTML = `<p class="error">Error loading score: ${scoreId} (${response.status})</p>`;
         return;
       }
 
       const scoreData = await response.text();
-      console.log(`Score data loaded, length: ${scoreData.length}`);
-
-      // Load and render the score
       await osmdInstance.load(scoreData);
-      console.log(`Score loaded, rendering...`);
-
       osmdInstance.render();
-      console.log(`Score rendered successfully for ${scoreId}`);
-
     } catch (error) {
       console.error('Error rendering score:', error);
-      scoreElement.innerHTML = `<p class="error">Error rendering music score: ${error.message}</p>`;
+      scoreElement.innerHTML = `<p class="error">Failed to load music rendering library</p>`;
     }
-  }).catch(error => {
-    console.error('Error importing OpenSheetMusicDisplay:', error);
-    const scoreElement = document.getElementById(`score-${scoreId}`);
-    if (scoreElement) {
-      scoreElement.innerHTML = '<p class="error">Failed to load music rendering library</p>';
-    }
-  });
+  })();
 </script>
 
 <style>
